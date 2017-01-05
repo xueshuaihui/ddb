@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html>
+	<meta charset="utf-8">
+		<title>店铺详情</title>
+		<meta name="viewport" content="width=device-width, initial-scale=1,maximum-scale=1,user-scalable=no">
+		<meta name="apple-mobile-web-app-capable" content="yes">
+		<meta name="apple-mobile-web-app-status-bar-style" content="black">
+		<script src="js/mui.min.js" type="text/javascript" charset="utf-8"></script>
+		<link rel="stylesheet" type="text/css" href="css/mui.min.css"/>
+		<link rel="stylesheet" href="/css/reset.css">
+        <link rel="stylesheet" href="/css/index.css">
+        <style type="text/css">
+        	.mui-scroll-wrapper{width: 100%;/*margin-left: 2.5%;*/background: #FFFFFF;}
+        	.mui-table-view{padding: 0 5%;}
+        	.content_fs{background: #FFFFFF;}
+        	.content_fs li{height: 135px;}
+        </style>
+	<body>
+		<!--下拉刷新容器-->
+		<div id="refreshContainer" class="mui-content mui-scroll-wrapper">
+			<div class="mui-scroll content_fs con">
+				<!--数据列表-->
+				<ul class="mui-table-view mui-table-view-chevron">
+				</ul>
+			</div>
+		</div>			
+	</body>
+	<script src="js/jquery.min.js" type="text/javascript" charset="utf-8"></script>
+	<!--<script src="js/move.js" type="text/javascript" charset="utf-8"></script>-->
+	<script type="text/javascript">
+		/*获取传递的参数*/  
+	var yonghuData=window.parent.yonghuData;
+	/*获取商户动态*/  
+	var content_dt=$(".content_dt");	   
+    var pagedt=0;
+    var pullflag=false;
+    var pagefs=0;
+    function fs(){
+    	pagefs++;
+    	var data=yonghuData;
+    	data.page=pagefs;
+        parent.AJAX({
+            url:"http://"+parent.httpdata+"/fans/getFansList",
+            data:data,
+            success:function(result){
+                if(result.code=="10000"){
+                    var contentFs=$(".content_fs");
+                    var str="";
+                    for(var i in result.data){
+                        str+='<li><a href="/fsxq.html?access_token='+(yonghuData.access_token)+'&user_id='+(result.data[i].user_id)+'" target="_parent"><div class="fs_logo"><div class="">';
+                        if(result.data[i].photo==null||result.data[i].photo==""){
+                        	str+='<img src="/images/1.jpg" alt="">';
+                        }else{
+                        	str+='<img src="'+result.data[i].photo+'" alt="">';
+                        }
+                        str+='</div></div><div class="fs_title"><h1>'+(result.data[i].nickname)+'</h1><p>';
+                        for(var j in result.data[i].tag){
+                            str+=result.data[i].tag[j].name+"、";
+                            if(j>=2){
+                            	break;
+                            }
+                        }
+                        str+='</p></div></a>';
+                        /*是否显示按钮*/
+                        if(parent.shenf){
+                        	str+='<div class="fs_button"><div class="quanfbtn" user_id="'+result.data[i].user_id+'">圈TA为粉</div></div></li> ';
+                        }
+                    }
+                    contentFs.children("ul").append(str);
+                }else if(result.code=="10007"&&pagefs==1){
+                	$(".content_fs").children("ul").html("<p style='text-align: center;padding: 10px 0;'>暂无粉丝</p>");
+                	pullflag=true;
+                	return
+                }else{
+                	if(pagefs==1){
+                		pagefs=0;
+                	}
+                	pullflag=true;
+                	return
+                }
+            }
+        })
+    }
+    /*圈粉*/
+    var content_fs=$(".content_fs");
+    content_fs.on("tap",".quanfbtn",function(){
+        var user_id=$(this).attr("user_id");
+        var data={access_token:yonghuData.access_token,user_id:user_id,source_id:yonghuData.shop_id}
+        var that=$(this);
+        var confirmflag=true;
+        window.parent.mui.confirm('圈为粉丝需支付2个偷窥宝','提示',['取消','确定'],function(data){
+        	/*在父窗口显示 回掉会执行俩次*/
+                		if(data.index==1&&confirmflag){
+                			quanf(that);
+                			confirmflag=false;
+                		}
+                	},'div');
+    function quanf(that){
+    	parent.AJAX({
+			url:"http://"+parent.httpdata+"/fans/addFans",
+			type:"post",
+			data:data,
+			success:function(result){
+				    if(result.code=="10000"){
+				    window.parent.mui.alert("圈粉成功");
+				    $(that).text("您的粉丝").removeClass("quanfbtn").css({background: "#eee",color:"#666666"});
+				    }else if(result.code=="10033"){
+				    window.parent.mui.confirm('您尚未购买偷窥宝','提示',['取消','去购买'],function(data){
+				        if(data.index==1){
+				            window.parent.location.href="ddb://tool/getList";
+				        }
+				    },'div');
+				    }else{
+				        window.parent.mui.alert(result.msg);
+				    }
+		      }
+		})
+    }        	         	
+    })
+    /*a标签的跳转*/
+   $(".content_fs").on("tap","a",function(){
+   	var locat=$(this).attr("href");
+   	parent.location.href=locat;
+   })
+    /*下拉*/
+    mui.init({
+	  pullRefresh : {
+	    container:"#refreshContainer",//下拉刷新容器标识，querySelector能定位的css选择器均可，比如：id、.class等
+	    down : {
+	      height:50,//可选,默认50.触发下拉刷新拖动距离,
+	      auto: true,//可选,默认false.自动下拉刷新一次
+	      contentdown : "下拉可以刷新",//可选，在下拉可刷新状态时，下拉刷新控件上显示的标题内容
+	      contentover : "释放立即刷新",//可选，在释放可刷新状态时，下拉刷新控件上显示的标题内容
+	      contentrefresh : "正在刷新...",//可选，正在刷新状态时，下拉刷新控件上显示的标题内容
+	      callback :pullfresh //必选，刷新函数，根据具体业务来编写，比如通过ajax从服务器获取新数据；
+	    }
+	  }
+	});
+
+     function pullfresh(){
+        fs();	
+        mui('#refreshContainer').pullRefresh().endPulldownToRefresh();
+     }
+     /*上拉加载*/
+    mui.init({
+	  pullRefresh : {
+	    container:refreshContainer,//待刷新区域标识，querySelector能定位的css选择器均可，比如：id、.class等
+	    up : {
+	      height:50,//可选.默认50.触发上拉加载拖动距离
+	      auto:true,//可选,默认false.自动上拉加载一次
+	      contentrefresh : "正在加载...",//可选，正在加载状态时，上拉加载控件上显示的标题内容
+	      contentnomore:'没有更多粉丝了',//可选，请求完毕若没有更多数据时显示的提醒内容；
+	      callback :pull//必选，刷新函数，根据具体业务来编写，比如通过ajax从服务器获取新数据；
+	    }
+	  }
+	});
+	function pull(){
+		fs();	
+		this.endPullupToRefresh(pullflag);
+	}
+	
+//	touchmove(2)
+	</script>
+</html>

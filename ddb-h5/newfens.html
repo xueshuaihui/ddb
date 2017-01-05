@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+    <title>新的粉丝</title>
+    <script src="js/mui.min.js"></script>
+    <link href="css/mui.min.css" rel="stylesheet"/>
+    <link rel="stylesheet" href="/css/reset.css">
+    <link rel="stylesheet" href="/css/index.css">
+    <script src="js/http.js" type="text/javascript" charset="utf-8"></script>
+    <style type="text/css">
+    	body{height: 100%;}
+    	.fs_button>div{width: 70px;height: 30px;line-height: 30px;}
+    </style>
+    <script type="text/javascript" charset="utf-8">
+      	mui.init();
+    </script>
+</head>
+<body id="target">	
+<div class="body">
+<div id="refreshContainer" class="mui-content mui-scroll-wrapper">
+  <div class="mui-scroll content_fs con">
+    <ul class="mui-table-view mui-table-view-chevron">
+    	
+    	
+    </ul>
+  </div>
+</div>
+</body>
+<script src="/js/jquery.min.js"></script>
+<script src="js/pullfresh.js" type="text/javascript" charset="utf-8"></script>
+<script src="js/tapinit.js" type="text/javascript" charset="utf-8"></script>
+<script>
+	 /*ajax*/
+    function AJAX(aggregate){
+        $.ajax({
+            type: aggregate.type||"get",
+            url: aggregate.url,
+            dataType: "jsonp",
+            data:aggregate.data,
+            jsonp: "callback",
+            success:aggregate.success
+        })
+    }
+      
+/*获取url 处理传递的参数*/   
+    var loadata=window.location.href;
+    var loadataArr=loadata.split("?");
+    var loadArr=loadataArr[1].split("&");
+    var hrefData={};
+    for(var i=0 in loadArr){
+    	var arr=loadArr[i].split("=");
+    	hrefData[arr[0]]=arr[1];
+    }
+    var yonghuData={access_token:hrefData.access_token};
+    /*加载完成获取店铺信息*/
+   var page=0;
+   var contentFs=$(".content_fs");
+   var pullflag=false;
+   function getfans(){
+   	page++;
+   	yonghuData.page=page;
+   		AJAX({
+   			url:"http://"+httpdata+"/fans/getFansApply",
+   			data:yonghuData,
+   			success:function(result){
+   				if(result.code=="10000"){
+                    var str="";
+                    for(var i in result.data){
+                        str+='<li><a href="/fsxq.html?access_token='+(yonghuData.access_token)+'&user_id='+(result.data[i].user_id)+'"><div class="fs_logo"><div class="">';
+                        if(result.data[i].photo==null||result.data[i].photo==""){
+                        	str+='<img src="/images/1.jpg" alt="">';
+                        }else{
+                        	str+='<img src="'+result.data[i].photo+'" alt="">';
+                        }
+                        if(result.data[i].nickname==null||result.data[i].nickname==""){
+                        	result.data[i].nickname="未填写昵称";
+                        }
+                        str+='</div></div><div class="fs_title"><h1>'+(result.data[i].nickname)+'</h1><p>';
+                        for(var j in result.data[i].tag){
+                            str+=result.data[i].tag[j].name+"、";
+                        }
+                        str+='</p></div></a><div class="fs_button"><div class="quanfbtn" user_id="'+result.data[i].user_id+'">同意</div></div></li> '
+                    }
+                    contentFs.children("ul").append(str);
+   				}else{
+   					if(page==1){
+                		page=0;
+                	}
+   					pullflag=true;
+   					return;
+   				}
+   			}
+   		})
+   } 
+   contentFs.on("tap",".quanfbtn",function(){
+   	var btn=$(this);
+   	var text=btn.text();
+   	var user_id=btn.attr("user_id");
+   	if(text=="同意"){
+   		AJAX({
+   			url:"http://"+httpdata+"/fans/agreeFansApply",
+   			type:"post",
+   			data:{"access_token":yonghuData.access_token,"user_id":user_id},
+   			success:function(result){
+   				if(result.code=="10000"){
+   					btn.text("已添加").css({background:"#f0eff5",color:"#999"});
+   				}else{
+   					mui.alert(result.msg);
+   				}
+   			}
+   		})
+   	}
+   })
+ /*上拉 下拉*/
+function pullfresh(){
+	getfans();
+     mui('#refreshContainer').pullRefresh().endPulldownToRefresh();
+}
+function pullshangla() {
+	getfans();
+    this.endPullupToRefresh(pullflag);
+}
+
+   /*上拉 下拉*/
+fresh(pullfresh,pullshangla);   
+   
+</script>
+</html>

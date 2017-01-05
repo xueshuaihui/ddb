@@ -1,0 +1,179 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>动态详情</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <link rel="stylesheet" href="/css/reset.css">
+    <link rel="stylesheet" href="/css/mui.min.css">
+    <link rel="stylesheet" href="/css/dtxq.css">
+    <style>
+        .conbox{width: 100%;margin-bottom: 10px;border-radius: 0;margin: 0 0 5px 0;}
+        .header{height: auto;}
+        .mui-content-padded{background: #ffffff;}
+        .mui-table-view,.mui-content{background-color: transparent;}
+        .mui-content{margin-top: 0;}
+        .titlebox{width: 100%;}
+    </style>
+</head>
+<body>
+<div id="refreshContainer" class="mui-content mui-scroll-wrapper">
+    <div class="mui-scroll content_dt con">
+        <!--数据列表-->
+        <ul class="mui-table-view mui-table-view-chevron">
+        </ul>
+    </div>
+</div>
+</body>
+<script src="/js/http.js"></script>
+<script src="/js/jquery.min.js"></script>
+<script src="/js/mui.min.js"></script>
+<script src="/js/mui.zoom.js"></script>
+<script src="/js/mui.previewimage.js"></script>
+<script>
+    var yonghuData=window.parent.yonghuData;
+    /*获取商户动态*/
+    var content_dt=$(".content_dt");
+    var pagedt=0;
+    var pullflag=false;
+    var conbox=$(".mui-table-view");
+    function shdt(){
+        pagedt++;
+        var data=yonghuData;
+        data.page=pagedt;
+        window.parent.AJAX({
+            url:"http://"+parent.httpdata+"/feed/getFeedsList",
+            data:data,
+            success:function(result){
+                if(result.code=="10000"){
+                    for(var i in result.data){
+                        var str='';
+                        str='<div class="conbox" feed_id="'+result.data[i].feed_id+'"><div class="con"><p>'+(result.data[i].content)+'</p><div class="mui-content"><div class="mui-content-padded">';
+                        var imgarr=result.data[i].images;
+                        var length=imgarr.length;
+                        for(var j=0 in imgarr){
+                            if(length<=1){
+                                var imgwidth="90%";
+                            }else if(length==4){
+                                var imgwidth="33%";
+                            }else{
+                                var imgwidth="30%";
+                            }
+                            var src=imgarr[j];
+                            str+='<img  class="coimg"  style="width: '+imgwidth+'" src="'+(src+".min"+src.substr(-4))+'" data-preview-src="'+src+'" data-preview-group="'+i+'" />';
+                        }
+                        str+='</div></div></div><div class="btnbox"><div class="fx"><a hrefs="ddb://topic/share/'+result.data[i].feed_id+'"><img src="./images/fxnum@3x.png" alt=""><span>('+(result.data[i].share_count)+')</span></a></div><div class="timemin"><img src="./images/time@3x.png" alt=""><span>'+(result.data[i].time)+'</span></div>';
+                        if(!parent.shenf&&!parent.dtflag){
+                            str+='<img src="/images/del@3x.png" class="del" feed_id="'+result.data[i].feed_id+'"></div></div>';
+                        }
+                        conbox.append(str);
+                        /*处理logo*/
+                        var logoimg=$(".logoimg")
+                        var imgboxw=logoimg.width();
+                        $(".header").css({height:imgboxw});
+                        if(result.data.logo!=""&&result.data.logo!=null){
+                            var logobox=logoimg.children("img");
+                            var img=new Image();
+                            img.src=result.data.logo;
+                            img.onload=function(){
+                                var logowidth=img.width;
+                                var logoheight=img.height;
+                                if(logowidth>=logoheight){
+                                    logobox.css({height:"100%",width:"auto"});
+                                }else{
+                                    logobox.css({width:"100%",height:"auto"});
+                                }
+                            }
+                        }
+                    }
+                }else if(result.code=="10007"&&pagedt==1){
+                    content_dt.children("ul").html("<p style='text-align: center;padding: 10px 0;'>暂无动态</p>");
+                    pullflag=true;
+                    return;
+                }else{
+                    if(pagedt==1){
+                        pagedt=0;
+                    }
+                    pullflag=true;
+                    return;
+                }
+            }
+        })
+    }
+    /*a标签的跳转*/
+    $(".content_dt").on("tap","a",function(){
+        var locat=$(this).attr("hrefs");
+        parent.location.href=locat;
+        return false;
+    })
+    /*动态删除*/
+    $('.content_dt').on("tap",".del",function(){
+        var del=$(this);
+        var feed_id=del.attr("feed_id");
+        var parents=$(".conbox[feed_id="+feed_id+"]");
+        var confirmflag=true;
+        window.parent.mui.confirm('即将删除该条动态，是否确认删除','提示',['取消','确定'],function(data){
+            /*在父窗口显示 回掉会执行俩次*/
+            if(data.index==1&&confirmflag){
+                deldt(feed_id,parents);
+                confirmflag=false;
+            }
+        },'div');
+    })
+    /*删除动态接口*/
+    function deldt(feed_id,parents){
+        yonghuData.feed_id=feed_id;
+        parent.AJAX({
+            url:"http://"+parent.httpdata+"/feed/deleteFeed",
+            data:yonghuData,
+            type:"post",
+            success:function(result){
+                if(result.code=="10000"){
+                    parents.remove();
+                    parent.mui.toast("删除成功！");
+                }else{
+                    parent.mui.toast("网络错误！");
+                }
+            }
+        })
+    }
+    /**/
+    /*下拉*/
+    mui.init({
+        pullRefresh : {
+            container:"#refreshContainer",//下拉刷新容器标识，querySelector能定位的css选择器均可，比如：id、.class等
+            down : {
+                height:50,//可选,默认50.触发下拉刷新拖动距离,
+                auto: true,//可选,默认false.自动下拉刷新一次
+                contentdown : "下拉可以刷新",//可选，在下拉可刷新状态时，下拉刷新控件上显示的标题内容
+                contentover : "释放立即刷新",//可选，在释放可刷新状态时，下拉刷新控件上显示的标题内容
+                contentrefresh : "正在刷新...",//可选，正在刷新状态时，下拉刷新控件上显示的标题内容
+                callback :pullfresh //必选，刷新函数，根据具体业务来编写，比如通过ajax从服务器获取新数据；
+            }
+        }
+    });
+    function pullfresh(){
+        shdt();
+        mui('#refreshContainer').pullRefresh().endPulldownToRefresh();
+    }
+    /*上拉加载*/
+    mui.init({
+        pullRefresh : {
+            container:refreshContainer,//待刷新区域标识，querySelector能定位的css选择器均可，比如：id、.class等
+            up : {
+                height:50,//可选.默认50.触发上拉加载拖动距离
+                auto:true,//可选,默认false.自动上拉加载一次
+                contentrefresh : "正在加载...",//可选，正在加载状态时，上拉加载控件上显示的标题内容
+                contentnomore:'没有更多数据了',//可选，请求完毕若没有更多数据时显示的提醒内容；
+                callback :pull//必选，刷新函数，根据具体业务来编写，比如通过ajax从服务器获取新数据；
+            }
+        }
+    });
+    function pull(){
+        shdt();
+        this.endPullupToRefresh(pullflag);
+    }
+    /**/
+    mui.previewImage();
+</script>
+</html>

@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html>
+	<meta charset="utf-8">
+		<title>店铺详情</title>
+		<meta name="viewport" content="width=device-width, initial-scale=1,maximum-scale=1,user-scalable=no">
+		<meta name="apple-mobile-web-app-capable" content="yes">
+		<meta name="apple-mobile-web-app-status-bar-style" content="black">
+		<script src="js/mui.min.js" type="text/javascript" charset="utf-8"></script>
+		<link rel="stylesheet" type="text/css" href="css/mui.min.css"/>
+		<link rel="stylesheet" href="/css/reset.css">
+        <link rel="stylesheet" href="/css/index.css">
+        <style type="text/css">
+        	.mui-scroll-wrapper{width: 100%;/*margin-left: 2.5%;*/background: #FFFFFF;}
+        	.content_dt{background: #FFFFFF;}
+        	.mui-table-view>li>a>p{margin-top: 10px;padding: 0 5%;}
+        	.mui-table-view>li>div{margin-top: 15px;padding: 0 5%;}
+        	.icon img{margin-right:3px;}
+        	.content_dt li{overflow: hidden;width: 100%;}
+        	.content_dt li,.content_dt li>a,.content_dt li>a>img{width: 100%;display: block;}
+        	.content_dt .dz{width: 20%;}
+        	.content_dt .fx{width: 20%;}
+        	.content_dt .fx img,.content_dt .dz img,.content_dt .time img{width: 15px;}
+        	/**/
+        	.content_dt li>div{position: relative;}
+        	.del{width: 15px;position: absolute;top: 0;right: 5%;}
+        </style>
+	<body>
+		<!--下拉刷新容器-->
+		<div id="refreshContainer" class="mui-content mui-scroll-wrapper">
+			<div class="mui-scroll content_dt con">
+				<!--数据列表-->
+				<ul class="mui-table-view mui-table-view-chevron">
+				</ul>
+			</div>
+		</div>			
+	</body>
+	<script src="js/jquery.min.js" type="text/javascript" charset="utf-8"></script>
+	<!--<script src="js/move.js" type="text/javascript" charset="utf-8"></script>-->
+	<script type="text/javascript">
+		/*获取传递的参数*/  
+	var yonghuData=window.parent.yonghuData;
+		/*获取商户动态*/
+	var content_dt=$(".content_dt");	   
+    var pagedt=0;
+    var pullflag=false;
+    function shdt(){
+    	pagedt++;
+    	var data=yonghuData;
+    	data.page=pagedt;
+        window.parent.AJAX({
+            url:"http://"+parent.httpdata+"/feed/getFeedsList",
+            data:data,
+            success:function(result){
+                if(result.code=="10000"){
+                    var str="";
+                    for(var i in result.data){
+                        str+='<li feed_id="'+result.data[i].feed_id+'"><a href="/olddtxq.html?access_token='+(yonghuData.access_token)+'&feed_id='+(result.data[i].feed_id)+'" target="_parent"><img src="'+(result.data[i].banner)+'" alt="加载失败"><p>'+(result.data[i].title)+'</p></a><div><div class="comment icon dz"  feed_id="'+result.data[i].feed_id+'">';
+                        if(result.data[i].zan){
+                            str+='<img src="./images/kefx@3x.png" alt="">';
+                        }else{
+                            str+='<img src="./images/yifx@3x.png" alt="">';
+                        }
+                        str+='<span>('+(result.data[i].zan_count)+')</span></div><div class="comment icon fx"><a href="javascript:;" hrefs="ddb://topic/share/'+result.data[i].feed_id+'" target="_parent"><img src="./images/fx@3x.png" alt=""><span>('+(result.data[i].share_count)+')</span></a></div><div class="comment icon time"><img src="./images/time@3x.png" alt=""><span>'+(result.data[i].time.slice(0,10))+'</span></div>';
+                        if(!parent.shenf&&!parent.dtflag){
+                        	str+='<img src="/images/del@3x.png" class="del" feed_id="'+result.data[i].feed_id+'"></div></li>';
+                        }
+                    }
+                    content_dt.find("ul").append(str);
+                }else if(result.code=="10007"&&pagedt==1){
+                    content_dt.children("ul").html("<p style='text-align: center;padding: 10px 0;'>暂无动态</p>");
+                    pullflag=true;
+            	    return;
+                }else{
+                	if(pagedt==1){
+                		pagedt=0;
+                	}
+                	pullflag=true;
+            	    return;
+            }
+            }
+        })
+    }
+    /*动态点赞*/
+   content_dt.on("tap",".dz",function(){
+        var dz=$(this);
+        yonghuData.feed_id=dz.attr("feed_id");
+        dtdz(yonghuData,dz);
+    })
+   /*获取动态详情*/
+    function dtxq(backfunction){
+        parent.AJAX({
+            url:"http://"+parent.httpdata+"/feed/getFeedInfo",
+            data:yonghuData,
+            success:function(result){
+                if(result.code=="10000"){
+                    backfunction(result);
+                }else{
+                    return;
+                }
+            }
+        })
+    }
+   /*动态点赞接口*/
+	function dtdz(yonghuData,dz){
+	    parent.AJAX({
+	        url:"http://"+parent.httpdata+"/feed/clickZan",
+	        type:"post",
+	        data:yonghuData,
+	        success:function(data){
+	        	if(data.code=="10000"){
+	        		dtxq(function(result){
+	                var num=parseInt(dz.children("span").text().slice(1,-1));
+	                if(result.data.zan){
+	                    /*已经点赞*/
+	                   num--;
+	                   if(num<0){
+	                   	num=0;
+	                   }
+	                    dz.children("img").attr({src:'/images/kefx@3x.png'});
+	                    dz.children("span").html("("+(num)+")")
+	                }else{
+	                    /*可以点赞*/
+	                    dz.children("img").attr({src:'/images/yifx@3x.png'});
+	                    dz.children("span").html("("+(num+1)+")")
+	                }
+	            })
+	        	}else{
+	        		window.parent.mui.alert(data.msg);
+	        		return;
+	        	}
+	        }
+	    })
+	}
+	/*a标签的跳转*/
+   $(".content_dt").on("tap","a",function(){
+   	var locat=$(this).attr("hrefs");
+   	parent.location.href=locat;
+   	return false;
+   })
+   /*动态删除*/
+  $('.content_dt').on("tap",".del",function(){
+  	var del=$(this);
+  	var feed_id=del.attr("feed_id");
+  	var parents=$("li[feed_id="+feed_id+"]");
+  	var confirmflag=true;
+  	window.parent.mui.confirm('即将删除该条动态，是否确认删除','提示',['取消','确定'],function(data){
+					        	/*在父窗口显示 回掉会执行俩次*/
+					            if(data.index==1&&confirmflag){
+					                deldt(feed_id,parents);
+					                confirmflag=false;
+					            }
+					        },'div');
+  })
+  /*删除动态接口*/
+   function deldt(feed_id,parents){
+   	yonghuData.feed_id=feed_id;
+   	parent.AJAX({
+   		url:"http://"+parent.httpdata+"/feed/deleteFeed",
+   		data:yonghuData,
+   		type:"post",
+   		success:function(result){
+   			if(result.code=="10000"){
+   				parents.remove();
+   				parent.mui.toast("删除成功！");
+   			}else{
+   				parent.mui.toast("网络错误！");
+   			}
+   		}
+   	})
+   }
+    /*下拉*/
+    mui.init({
+	  pullRefresh : {
+	    container:"#refreshContainer",//下拉刷新容器标识，querySelector能定位的css选择器均可，比如：id、.class等
+	    down : {
+	      height:50,//可选,默认50.触发下拉刷新拖动距离,
+	      auto: true,//可选,默认false.自动下拉刷新一次
+	      contentdown : "下拉可以刷新",//可选，在下拉可刷新状态时，下拉刷新控件上显示的标题内容
+	      contentover : "释放立即刷新",//可选，在释放可刷新状态时，下拉刷新控件上显示的标题内容
+	      contentrefresh : "正在刷新...",//可选，正在刷新状态时，下拉刷新控件上显示的标题内容
+	      callback :pullfresh //必选，刷新函数，根据具体业务来编写，比如通过ajax从服务器获取新数据；
+	    }
+	  }
+	});
+     function pullfresh(){
+     	shdt();	
+        mui('#refreshContainer').pullRefresh().endPulldownToRefresh();
+     }
+     /*上拉加载*/
+    mui.init({
+	  pullRefresh : {
+	    container:refreshContainer,//待刷新区域标识，querySelector能定位的css选择器均可，比如：id、.class等
+	    up : {
+	      height:50,//可选.默认50.触发上拉加载拖动距离
+	      auto:true,//可选,默认false.自动上拉加载一次
+	      contentrefresh : "正在加载...",//可选，正在加载状态时，上拉加载控件上显示的标题内容
+	      contentnomore:'没有更多数据了',//可选，请求完毕若没有更多数据时显示的提醒内容；
+	      callback :pull//必选，刷新函数，根据具体业务来编写，比如通过ajax从服务器获取新数据；
+	    }
+	  }
+	});
+	function pull(){
+		shdt();	
+		this.endPullupToRefresh(pullflag);
+	}
+	
+//	touchmove(1);
+
+	</script>
+	
+</html>

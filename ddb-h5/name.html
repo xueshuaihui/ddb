@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+    <title>修改昵称</title>
+    <script src="js/mui.min.js"></script>
+    <link href="css/mui.min.css" rel="stylesheet"/>
+    <link rel="stylesheet" href="/css/reset.css">
+    <link rel="stylesheet" href="css/index.css" />
+    <script src="js/http.js" type="text/javascript" charset="utf-8"></script>
+    <style type="text/css">
+    	form{font-size: 18px;font-weight:bold;}
+    </style>
+</head>
+<body>
+<form class="mui-input-group">
+    <div class="mui-input-row">
+        <label>昵称</label>
+        <input type="text" class="mui-input-clear" placeholder="请输入内容">
+    </div>
+    <div class="mui-button-row">
+        <button type="button" class="mui-btn mui-btn-primary" style="border: 1px solid #62d0eb;background: #62d0eb;">确认</button>
+    </div>
+</form>
+</body>
+<script src="js/jquery.min.js" type="text/javascript" charset="utf-8"></script>
+<script src="js/tapinit.js" type="text/javascript" charset="utf-8"></script>
+<script type="text/javascript">
+/*获取url 处理传递的参数*/    
+    var loadata=window.location.href;
+    var loadataArr=loadata.split("?");
+    var loadArr=loadataArr[1].split("&");
+    var hrefData={};
+    for(var i=0 in loadArr){
+    	var arr=loadArr[i].split("=");
+    	hrefData[arr[0]]=arr[1];
+    }
+    var yonghuData={access_token:hrefData.access_token};
+	$(".mui-btn-primary").on("tap",function(){
+	yonghuData.nick_name=$(".mui-input-clear").val();
+	if(yonghuData.nick_name.length>12){
+		mui.alert("昵称最多12个字符.")
+		return;
+	}
+	$.ajax({
+    type: "post",
+    url: "http://"+httpdata+"/user/updateUser",
+    dataType: "jsonp",
+    data:yonghuData,
+    jsonp: "callback",
+    success:function(data){
+        if(data.code=="10000"){
+        	window.location.href="/gerenxinxi.html?"+loadataArr[1];
+        }else{
+        	mui.toast("网络错误，请稍后重试！");
+        }
+     }
+   })
+		})
+</script>
+</html>

@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+		<title>最新消息</title>
+		<script src="/js/mui.js" type="text/javascript" charset="utf-8"></script>
+        <link href="/css/mui.min.css" rel="stylesheet"/>
+        <script src="js/http.js" type="text/javascript" charset="utf-8"></script>
+        <style>
+        	.mui-table-view-chevron .mui-table-view-cell{padding-right: 0;}
+        </style>
+	</head>
+	<body>
+		<!--下拉刷新容器-->
+		<div id="refreshContainer" class="mui-content mui-scroll-wrapper">
+		  <div class="mui-scroll">
+		    <!--数据列表-->
+		    <ul class="mui-table-view mui-table-view-chevron">
+		    </ul>
+		  </div>
+		</div>
+	</body>
+	<script src="js/jquery.min.js" type="text/javascript" charset="utf-8"></script>
+	<script src="js/pullfresh.js" type="text/javascript" charset="utf-8"></script>
+	<script type="text/javascript">
+	/*ajax*/
+    function AJAX(aggregate){
+        $.ajax({
+            type: aggregate.type||"get",
+            url: aggregate.url,
+            dataType: "jsonp",
+            data:aggregate.data,
+            jsonp: "callback",
+            success:aggregate.success
+        })
+    }    
+/*获取url 处理传递的参数*/    
+    var loadata=window.location.href;
+    var loadataArr=loadata.split("?");
+    var loadArr=loadataArr[1].split("&");
+    var hrefData={};
+    for(var i=0 in loadArr){
+    	var arr=loadArr[i].split("=");
+    	hrefData[arr[0]]=arr[1];
+    }
+    var yonghuData={access_token:hrefData.access_token};
+    /*加载完成获取店铺信息*/
+   var ulbox=$(".mui-table-view");
+   var page=0;
+   var pullflag=false;
+   function getnews(){
+   	page++;
+   	yonghuData.page=page;
+   	AJAX({
+   		url:"http://"+httpdata+"/message/getNewMessageList",
+   		data:yonghuData,
+   		success:function(result){
+   			if(result.code=="10000"){
+   				var str=""
+   				for(var i=0 in result.data){
+   					str+='<li class="mui-table-view-cell">'+result.data[i].content+'</li>'
+   				}
+   			}else{
+   				if(page==1){
+                	page=0;
+                }
+   				pullflag=true;
+   				return;
+   			}
+   			ulbox.append(str);
+   		}
+   	})
+   }
+ /*上拉 下拉*/
+function pullfresh(){
+     getnews();
+     mui('#refreshContainer').pullRefresh().endPulldownToRefresh();
+}
+function pullshangla() {
+	getnews()
+    this.endPullupToRefresh(pullflag);
+}
+
+   /*上拉 下拉*/
+  fresh(pullfresh,pullshangla);
+	</script>
+</html>

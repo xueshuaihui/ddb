@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>动态详情</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <link rel="stylesheet" href="/css/reset.css">
+    <link rel="stylesheet" href="/css/mui.min.css">
+    <link rel="stylesheet" href="/css/dtxq.css">
+</head>
+<body>
+<div class="download">
+    <a href="http://a.app.qq.com/o/simple.jsp?pkgname=com.whgkj.ddb">
+        <img src="/images/download.png" alt="">
+    </a>
+</div>
+</body>
+<script src="/js/http.js"></script>
+<script src="/js/jquery.min.js"></script>
+<script src="/js/mui.min.js"></script>
+<script src="/js/mui.zoom.js"></script>
+<script src="/js/mui.previewimage.js"></script>
+<script>
+    /*获取url 处理传递的参数*/
+    function AJAX(aggregate){
+        $.ajax({
+            type: aggregate.type||"get",
+            url: aggregate.url,
+            dataType: "jsonp",
+            data:aggregate.data,
+            jsonp: "callback",
+            success:aggregate.success
+        })
+    }
+    var loadata=window.location.href;
+    var loadataArr=loadata.split("?");
+    var loadArr=loadataArr[1].split("&");
+    var hrefData={};
+    for(var i=0 in loadArr){
+        var arr=loadArr[i].split("=");
+        hrefData[arr[0]]=arr[1];
+    }
+
+    var yonghuData={access_token:hrefData.access_token,feed_id:hrefData.feed_id};
+    var conbox=$("body");
+    AJAX({
+        url:"http://"+httpdata+"/feed/getFeedInfo",
+        data:yonghuData,
+        success:function(result){
+            if(result.code=="10000"){
+                var str='';
+                str='<div class="conbox"><div class="header"><div class="logoimg"><img src="'+result.data.logo+'" alt=""></div><div class="titlebox"><div class="titbox"><h6 class="title">'+(result.data.name)+'</h6><p class="time">'+(result.data.time)+'</p></div></div></div><div class="con"><p>'+(result.data.content)+'</p><div class="mui-content"><div class="mui-content-padded">';
+                var imgarr=result.data.images;
+                var length=imgarr.length;
+                for(var i=0 in imgarr){
+                    var src=imgarr[i];
+                    str+='<div class="coimg"><img src="'+(src+".min"+src.substr(-4))+'" data-preview-src="'+src+'" data-preview-group="1" /></div>';
+                }
+                str+='</div></div></div><div class="btnbox"><div class="fx"><img src="./images/fxnum@3x.png" alt=""><span>('+(result.data.share_count)+')</span></div></div></div>';
+                conbox.prepend(str);
+                /*处理logo*/
+                var logoimg=$(".logoimg")
+                var imgboxw=logoimg.width();
+                $(".header").css({height:imgboxw});
+                if(result.data.logo!=""&&result.data.logo!=null){
+                    var logobox=logoimg.children("img");
+                    var img=new Image();
+                    img.src=result.data.logo;
+                    img.onload=function(){
+                        var logowidth=img.width;
+                        var logoheight=img.height;
+                        if(logowidth>=logoheight){
+                            logobox.css({height:"100%",width:"auto"});
+                        }else{
+                            logobox.css({width:"100%",height:"auto"});
+                        }
+                    }
+                }
+                /*图片排列*/
+                var conimg=$(".mui-content-padded>.coimg");
+                if(length<=1){
+                    conimg.css({width:"90%"});
+                }else if(length==4){
+                    conimg.css({width:"33%"});
+                }else{
+                    conimg.css({width:"30%"})
+                }
+                var height=conimg.css("width");
+                conimg.css({height:height});
+            }else{
+                mui.alert(result.msg);
+            }
+        }
+    })
+    /**/
+    mui.previewImage();
+</script>
+</html>

@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="zh-CN"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<meta name="description" content="">
+	<meta name="author" content="">
+	<title>到店宝</title>
+	<link href="./fsxq/bootstrap.min.css" rel="stylesheet">
+	<link href="./fsxq/swiper.min.css" rel="stylesheet">
+	<link href="./fsxq/swiper.css" rel="stylesheet">
+	<link href="./fsxq/vendorstyle.css" rel="stylesheet">
+	<link href="./fsxq/video.css" rel="stylesheet">
+	<link href="./fsxq/css.css" rel="stylesheet">
+	<link href="./fsxq/topic.css" rel="stylesheet">
+	<script src="./fsxq/jquery-2.1.4.js"></script>
+	<script src="./fsxq/bootstrap.min.js"></script>
+	<script src="./fsxq/swiper.js"></script>
+	<script src="./fsxq/ImageSwiperModule.js"></script>
+	<script src="./fsxq/VideoPlayer.js"></script>
+	<script src="./fsxq/VideoModule.js"></script>
+	<script src="./fsxq/emoji_utf16to32.js"></script>
+	<script src="./fsxq/myfunction.js"></script>
+	<script src="./fsxq/config.inc.js"></script>
+</head>
+<body>
+<!-- 标题栏 -->
+<div id="topic-container">
+	<div class="topic-user-div">
+		<img alt="头像" src="./fsxq/6b738a638362a226b241fc351e03ff4e_ori-wh100x100.jpg-headiconsmall" class="topic-icon img-circle">
+		<div class="topic-user-time">
+			<div class="topic-user">徐飔飖</div>
+			<div class="topic-time">2016年09月08日 </div>
+		</div>
+		<div class="clear"></div>
+	</div>
+	<div class="topic-div">
+		<div class="topic-content">祝你好运</div>
+		<div class="topic-image">
+			<div class="topic-image-more">
+				<img alt="" src="./fsxq/81a8080d769b1471fa72d848766c716e_ori-wh1241x1241.jpg-moresmallpic" class="msg-image" data-index="0" style="height: 163px;">
+			</div>
+			<div class="topic-image-more">
+				<img alt="" src="./fsxq/4457cd6ab1a2e808d6fc1f8fcccd63e7_ori-wh1241x1241.jpg-moresmallpic" class="msg-image" data-index="1" style="height: 163px;">
+			</div>
+			<div class="topic-image-more">
+				<img alt="" src="./fsxq/06488a8cff943c78bc49e858881857dc_ori-wh1241x1241.jpg-moresmallpic" class="msg-image" data-index="2" style="height: 163px;">
+			</div>
+			<div class="topic-image-more">
+				<img alt="" src="./fsxq/68f93512e7f6baabb3e154058e956cce_ori-wh1241x1241.jpg-moresmallpic" class="msg-image" data-index="3" style="height: 163px;">
+			</div>
+			<div class="topic-image-more">
+				<img alt="" src="./fsxq/51062ba78d6ae9071cc604617b8f9649_ori-wh1241x1241.jpg-moresmallpic" class="msg-image" data-index="4" style="height: 163px;">
+			</div>
+			<div class="topic-image-more">
+				<img alt="" src="./fsxq/ec7a5c1df0798089fe3a7b9143c4d90f_ori-wh1241x1241.jpg-moresmallpic" class="msg-image" data-index="5" style="height: 163px;">
+			</div>
+			<div class="topic-image-more">
+				<img alt="" src="./fsxq/71f6f2446b2242ddcf3087abb8cd8f4b_ori-wh1241x1241.jpg-moresmallpic" class="msg-image" data-index="6" style="height: 163px;">
+			</div>
+			<div class="topic-image-more">
+				<img alt="" src="./fsxq/80178f33fb14032a5a3f24251561efe4_ori-wh1241x1241.jpg-moresmallpic" class="msg-image" data-index="7" style="height: 163px;">
+			</div>
+			<div class="topic-image-more">
+				<img alt="" src="./fsxq/464460c625302fa3edc8b9a6c30caab8_ori-wh698x1242.jpg-moresmallpic" class="msg-image" data-index="8" style="height: 163px;">
+			</div>
+			<div class="clear"></div>
+		</div>
+		<div class="topic-reply-top">
+			<img alt="" src="./fsxq/reply_top.png">
+		</div>
+		<div class="topic-reply">
+			<img alt="" src="./fsxq/collect.png"><span class="topic-reply-collect">被赞0次</span>    <img alt="" src="./fsxq/zan.png"><span class="topic-reply-collect">被收藏0次</span>
+		</div>
+	</div>
+</div>
+<script type="text/javascript">
+	$(document).ready(function(){
+		var is_video = "0,0,0,0,0,0,0,0,0";
+		var imagestr = "http://image.kanwawa.com/9227466665759633654/81a8080d769b1471fa72d848766c716e_ori-wh1241x1241.jpg-moresmallpic?compatible=-size300x300.jpg,http://image.kanwawa.com/9227466665759633654/4457cd6ab1a2e808d6fc1f8fcccd63e7_ori-wh1241x1241.jpg-moresmallpic?compatible=-size300x300.jpg,http://image.kanwawa.com/9227466665759633654/06488a8cff943c78bc49e858881857dc_ori-wh1241x1241.jpg-moresmallpic?compatible=-size300x300.jpg,http://image.kanwawa.com/9227466665759633654/68f93512e7f6baabb3e154058e956cce_ori-wh1241x1241.jpg-moresmallpic?compatible=-size300x300.jpg,http://image.kanwawa.com/9227466665759633654/51062ba78d6ae9071cc604617b8f9649_ori-wh1241x1241.jpg-moresmallpic?compatible=-size300x300.jpg,http://image.kanwawa.com/9227466665759633654/ec7a5c1df0798089fe3a7b9143c4d90f_ori-wh1241x1241.jpg-moresmallpic?compatible=-size300x300.jpg,http://image.kanwawa.com/9227466665759633654/71f6f2446b2242ddcf3087abb8cd8f4b_ori-wh1241x1241.jpg-moresmallpic?compatible=-size300x300.jpg,http://image.kanwawa.com/9227466665759633654/80178f33fb14032a5a3f24251561efe4_ori-wh1241x1241.jpg-moresmallpic?compatible=-size300x300.jpg,http://image.kanwawa.com/9227466665759633654/464460c625302fa3edc8b9a6c30caab8_ori-wh698x1242.jpg-moresmallpic?compatible=-size300x300.jpg";
+		var images = imagestr.split(",");
+		var is_url = '0';
+		if(is_url>=3){
+			var width = $(".share-url-img-div-v").width();
+			var height = $(".share-url-img-div-v").height();
+			if(width>40)
+				$(".share-url-img-div-v").css("margin-left",-(width-40)/2);
+		}
+		if(images.length>1 || (images.length==1 && is_video=='0')){
+			var imagebig = "http://image.kanwawa.com/9227466665759633654/81a8080d769b1471fa72d848766c716e_ori-wh1241x1241.jpg-bigpic?compatible=-size1241x1241.jpg,http://image.kanwawa.com/9227466665759633654/4457cd6ab1a2e808d6fc1f8fcccd63e7_ori-wh1241x1241.jpg-bigpic?compatible=-size1241x1241.jpg,http://image.kanwawa.com/9227466665759633654/06488a8cff943c78bc49e858881857dc_ori-wh1241x1241.jpg-bigpic?compatible=-size1241x1241.jpg,http://image.kanwawa.com/9227466665759633654/68f93512e7f6baabb3e154058e956cce_ori-wh1241x1241.jpg-bigpic?compatible=-size1241x1241.jpg,http://image.kanwawa.com/9227466665759633654/51062ba78d6ae9071cc604617b8f9649_ori-wh1241x1241.jpg-bigpic?compatible=-size1241x1241.jpg,http://image.kanwawa.com/9227466665759633654/ec7a5c1df0798089fe3a7b9143c4d90f_ori-wh1241x1241.jpg-bigpic?compatible=-size1241x1241.jpg,http://image.kanwawa.com/9227466665759633654/71f6f2446b2242ddcf3087abb8cd8f4b_ori-wh1241x1241.jpg-bigpic?compatible=-size1241x1241.jpg,http://image.kanwawa.com/9227466665759633654/80178f33fb14032a5a3f24251561efe4_ori-wh1241x1241.jpg-bigpic?compatible=-size1241x1241.jpg,http://image.kanwawa.com/9227466665759633654/464460c625302fa3edc8b9a6c30caab8_ori-wh698x1242.jpg-bigpic?compatible=-size698x1242.jpg";
+			var images_big = imagebig.split(",");
+			if(images.length>1){
+				$(".msg-image").height($(".msg-image").width());
+			}
+			$(".msg-image").click(function(){
+				var index = $(this).data("index");
+				showImageSwiper(images_big,index);
+			});
+			function showImageSwiper(pics,index){
+				var imageswipermodule = new ImageSwiperModule();
+				imageswipermodule.init();
+				$("#topic-container").hide();
+				imageswipermodule.showImageSwiper(pics,index);
+				imageswipermodule.afterHideImageSwiper = function(){
+					$("#topic-container").show();
+				};
+			}
+		}
+		console.log()
+		else if(images.length==1){
+			var play = false;
+			$(".video-play img").css("margin-top",-($(".topic-video-single").height()-$(".topic-video-single").width()*0.04));
+			$("#video1").click(function(){
+				if(play==false){
+					playvideo("video1");
+					play = true;
+				}
+			});
+//			function playvideo(video){
+//				var videomodule = new VideoModule();
+//				videomodule.g_path = "../template/video/";
+//				videomodule.init("100%","100%");
+//				videomodule.showVideoView(video,"http://image.kanwawa.com/9227466665759633654/81a8080d769b1471fa72d848766c716e_ori-wh1241x1241.jpg-bigpic?compatible=-size1241x1241.jpg,http://image.kanwawa.com/9227466665759633654/4457cd6ab1a2e808d6fc1f8fcccd63e7_ori-wh1241x1241.jpg-bigpic?compatible=-size1241x1241.jpg,http://image.kanwawa.com/9227466665759633654/06488a8cff943c78bc49e858881857dc_ori-wh1241x1241.jpg-bigpic?compatible=-size1241x1241.jpg,http://image.kanwawa.com/9227466665759633654/68f93512e7f6baabb3e154058e956cce_ori-wh1241x1241.jpg-bigpic?compatible=-size1241x1241.jpg,http://image.kanwawa.com/9227466665759633654/51062ba78d6ae9071cc604617b8f9649_ori-wh1241x1241.jpg-bigpic?compatible=-size1241x1241.jpg,http://image.kanwawa.com/9227466665759633654/ec7a5c1df0798089fe3a7b9143c4d90f_ori-wh1241x1241.jpg-bigpic?compatible=-size1241x1241.jpg,http://image.kanwawa.com/9227466665759633654/71f6f2446b2242ddcf3087abb8cd8f4b_ori-wh1241x1241.jpg-bigpic?compatible=-size1241x1241.jpg,http://image.kanwawa.com/9227466665759633654/80178f33fb14032a5a3f24251561efe4_ori-wh1241x1241.jpg-bigpic?compatible=-size1241x1241.jpg,http://image.kanwawa.com/9227466665759633654/464460c625302fa3edc8b9a6c30caab8_ori-wh698x1242.jpg-bigpic?compatible=-size698x1242.jpg");
+//				videomodule.playVideo();
+//			}
+		}
+	});
+</script>
+
+</body></html>

@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+    <title>粉丝列表</title>
+    <script src="js/mui.min.js"></script>
+    <link href="css/mui.min.css" rel="stylesheet"/>
+    <link rel="stylesheet" href="/css/reset.css">
+    <link rel="stylesheet" href="/css/index.css">
+    <script src="js/http.js" type="text/javascript" charset="utf-8"></script>
+    <style type="text/css">
+    .body{padding-top: 0;}
+    	.fs_title{width: 75%;}
+    	.fs_title>h1{margin-bottom: 10px;margin-top: 15px;}
+    	.fs_title>p{margin-bottom: 10px;white-space: nowrap;}
+    	.fs_title>span{margin-left: 5px;}
+    	.comment{margin-left: 20px;margin-top: 0;}
+    	.fs_title>.fxcs{margin-left: 20px;color: #666666;}
+    </style>
+</head>
+<body id="target">
+    <!--下拉刷新容器-->
+<div id="refreshContainer" class="mui-content mui-scroll-wrapper">
+  <div class="mui-scroll content_fs con">
+    <!--数据列表-->
+    <ul class="mui-table-view mui-table-view-chevron">
+    </ul>
+  </div>
+</div> 
+</body>
+<script src="/js/jquery.min.js"></script>
+<script src="js/pullfresh.js" type="text/javascript" charset="utf-8"></script>
+<script type="text/javascript">
+//	$(function(){
+    /*ajax*/
+    function AJAX(aggregate){
+        $.ajax({
+            type: aggregate.type||"get",
+            url: aggregate.url,
+            dataType: "jsonp",
+            data:aggregate.data,
+            jsonp: "callback",
+            success:aggregate.success
+        })
+    }
+      
+/*获取url 处理传递的参数*/    
+    var loadata=window.location.href;
+    var loadataArr=loadata.split("?");
+    var loadArr=loadataArr[1].split("&");
+    var hrefData={};
+    for(var i=0 in loadArr){
+    	var arr=loadArr[i].split("=");
+    	hrefData[arr[0]]=arr[1];
+    }
+    var yonghuData={access_token:hrefData.access_token};
+    /*获取商户的粉丝列表*/
+   var contentFs=$(".content_fs");
+   var pagefs=0;
+   var pullflag=false;
+    function fs(){
+    	pagefs++;
+    	console.log(pagefs)
+    	yonghuData.page=pagefs;
+        AJAX({
+            url:"http://"+httpdata+"/fans/getMyFansList",
+            data:yonghuData,
+            success:function(result){
+                if(result.code=="10000"){
+                    var str="";
+                    for(var i in result.data){
+                        str+='<a href="/fsxq.html?access_token='+(yonghuData.access_token)+'&user_id='+(result.data[i].user_id)+'"><li style="padding-left:15px;"><div class="fs_logo"><div class="">';
+                        if(result.data[i].photo==null||result.data[i].photo==""){
+                           	str+='<img src="/images/1.jpg" alt="">'
+                        }else{
+                        	str+='<img src="'+result.data[i].photo+'" alt="">'
+                        }
+                        str+='</div></div><div class="fs_title"><h1>'+(result.data[i].nickname)+'</h1>';
+                        if(result.data[i].desc==null||result.data[i].desc==""){
+                        	str+='<p>TA没有留下任何信息。</p><p>';
+                        }else{
+                        	str+='<p>'+(result.data[i].desc)+'</p><p>';
+                        }
+                        for(var j in result.data[i].tag){
+                            str+=result.data[i].tag[j].name+"、";
+                        }
+                        str+='</p><span class="fxcs">分享次数</span><span>('+(result.data[i].share)+')</span></div></div></li></a> '
+                    }
+                    contentFs.children("ul").append(str);
+                }else if(result.code=="10007"&&pagefs==1){
+                	mui.confirm('您尚未添加粉丝','提示',['取消','去添加'],function(data){
+                		if(data.index==1){
+                			window.location.href="ddb://user/recommendFans";
+                		}
+                	},'div');
+                }else{
+                	if(pagefs==1){
+                		pagefs=0;
+                	}
+                	pullflag=true;
+                	mui.toast(result.msg);
+                }
+            }
+        })
+    }
+ /*上拉 下拉*/
+var flag=true;
+function pullfresh(){
+//	if(flag){
+//		fs();
+//		flag=false;
+//	}else{
+//		window.location.reload();
+//	}
+     fs();
+     mui('#refreshContainer').pullRefresh().endPulldownToRefresh();
+}
+function pullshangla() {
+	fs();
+    this.endPullupToRefresh(pullflag);
+}
+
+   /*上拉 下拉*/
+fresh(pullfresh,pullshangla);   
+
+//})
+</script>
+</html>

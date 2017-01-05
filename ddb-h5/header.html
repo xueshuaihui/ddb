@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+	<meta charset="utf-8">
+		<title>店铺详情</title>
+		<meta name="viewport" content="width=device-width, initial-scale=1,maximum-scale=1,user-scalable=no">
+		<meta name="apple-mobile-web-app-capable" content="yes">
+		<meta name="apple-mobile-web-app-status-bar-style" content="black">
+		<link rel="stylesheet" href="/css/reset.css">
+        <link rel="stylesheet" href="/css/index.css">
+        <style type="text/css">
+        	body{background: #FFFFFF;}
+        	.content_title{position: relative;}
+        	.hots{width: 20%;height: 3px;background: #575656;position: absolute;bottom: -2px;left: 5%;}
+        </style>
+	<body>
+		<div class="body">
+			<section>
+				<header class="content_title">
+		            <div><h1>详情</h1></div>
+		            <div><h1>动态</h1></div>
+		            <div><h1>粉丝</h1></div>
+		            <span class="hots"></span>
+		        </header>
+			</section>
+		</div>
+	</body>
+	<script src="js/mui.min.js" type="text/javascript" charset="utf-8"></script>
+	<script src="js/tapinit.js" type="text/javascript" charset="utf-8"></script>
+	<script src="js/jquery.min.js" type="text/javascript" charset="utf-8"></script>
+	<script type="text/javascript">
+	var hots=$(".hots");
+	var width=$(window).width();
+		$("h1").each(function(index,obj){
+			$(this).on("tap",function(){
+				hots.finish().animate({left:(32*index+5)+"%"},80);
+				parent.move(index);
+			})
+		})
+		function headmove(index,dis){
+			hots.css({left:(32*index+5)-(dis/width)*30+"%"});
+		}
+	</script>
+</html>

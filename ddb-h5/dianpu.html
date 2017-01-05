@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+	<meta charset="utf-8">
+		<title>店铺详情</title>
+		<meta name="viewport" content="width=device-width, initial-scale=1,maximum-scale=1,user-scalable=no">
+		<meta name="apple-mobile-web-app-capable" content="yes">
+		<meta name="apple-mobile-web-app-status-bar-style" content="black">
+		<link rel="stylesheet" href="/css/reset.css">
+        <link rel="stylesheet" href="/css/index.css">
+        <style type="text/css">
+        	.mui-scroll-wrapper{width: 95%;margin-left: 2.5%;background: #FFFFFF;}
+        	.mui-table-view{padding: 0 5%;}
+        </style>
+	<body>
+		<div class="body">
+			<section>
+				<article>
+				<div class="content_xq con" style="display: block;">
+                </div>
+			</article>
+			</section>
+		</div>
+	</body>
+	<script src="js/jquery.min.js" type="text/javascript" charset="utf-8"></script>
+	<script src="js/mui.min.js" type="text/javascript" charset="utf-8"></script>
+	<script src="js/tapinit.js" type="text/javascript" charset="utf-8"></script>
+	<!--<script src="js/move.js" type="text/javascript" charset="utf-8"></script>-->
+	<script type="text/javascript">
+		/*获取传递的参数*/  
+		    var yonghuData=window.parent.yonghuData;
+		    /*加载完成获取店铺信息*/
+		   var yhurl=""
+		   if(yonghuData.shop_id==undefined||yonghuData.shop_id==""){
+		   	yhurl="http://"+parent.httpdata+"/shop/myshopInfo"
+		   }else{
+		   	yhurl="http://"+parent.httpdata+"/shop/shopInfo";
+		   }
+		   window.parent.AJAX({
+		   	url:yhurl,
+	        data:yonghuData,
+	        success:function(result){
+	        	if(result.code=="10000"){
+	        		/*图文排版*/
+		            var data={content:result.data.desc,images:result.data.images,parents:$(".content_xq")};
+		            videotex(data);
+	        	}
+	        }
+		   })
+		   /*图文排版接口*/
+		    function videotex(data){
+		        /*
+		        * data.content 文字内容
+		        * data.images  图片数组
+		        * data.parents  排版的容器
+		        * */
+		        var content=data.content;
+		        var str="";
+		        str+="<p>"+content+"</p>";
+		        var images=eval(data.images);
+		        for (var i in eval(data.images)) {
+		        	str+="<img src='"+(eval(data.images)[i])+"'>";
+		        }
+		        data.parents.html(str);
+		    }
+		    
+//		    touchmove(0);
+	</script>
+</html>

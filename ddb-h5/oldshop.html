@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title>店铺详情</title>
+		<meta name="viewport" content="width=device-width, initial-scale=1,maximum-scale=1,user-scalable=no">
+		<meta name="apple-mobile-web-app-capable" content="yes">
+		<meta name="apple-mobile-web-app-status-bar-style" content="black">
+		<link rel="stylesheet" href="/css/mui.min.css">
+		<link rel="stylesheet" href="/css/reset.css">
+        <link rel="stylesheet" href="/css/index.css">
+        <script src="/js/mui.min.js"></script>
+        <script src="js/http.js" type="text/javascript" charset="utf-8"></script>
+        <style type="text/css">
+            article{width: 100%;}
+        	#dianpu,#dongtai,#feisi{position: absolute;}
+        	#dianpu{left: 0;background: #FFFFFF;padding: 3% 2.5%;}
+        	.content_title{position: relative;}
+        	.hots{width: 20%;height: 3px;background: #575656;position: absolute;bottom: -2px;left: 5%;}
+        	.comment{font-size: 14px;}
+			article{position: relative;}
+        </style>
+	</head>
+
+	<body>
+		<div class="headbox" >
+		    <div class="logo_box">
+		        <img src="/images/1.jpg" alt="">
+		    </div>
+		    <!--logo-->
+		    <div class="logo_title">
+		        <div class="logoTitle"><h1>暂无</h1></div>
+		        <div>
+		            <div class="comment collect icon"><img src="/images/kefx@3x.png" alt="" ><span>(0)</span></div>
+		            <div class="comment fans icon"><img src="/images/fxrenshu@3x.png" alt=""><span>(0)</span></div>
+		        </div>
+		    </div>
+		</div>
+		<div class="body">
+			<section>
+				<header class="content_title">
+		            <div><h1>详情</h1></div>
+		            <div><h1>动态</h1></div>
+		            <div><h1>粉丝</h1></div>
+		            <span class="hots"></span>
+		        </header>
+			</section>
+			<article >
+				<div id="dianpu" class="content_xq con" style="display: block;">
+                </div>
+				<!--<iframe src="dongtai.html" width="" height="500px" id="dongtai" name="dongtai" scrolling="auto" style="display: none;"></iframe>-->
+				<div id="refreshContainer" class="mui-content mui-scroll-wrapper dongtai" style="display: none;">
+					<div class="mui-scroll content_dt con">
+						<!--数据列表-->
+						<ul class="mui-table-view mui-table-view-chevron">
+						</ul>
+					</div>
+				</div>
+				<iframe src="feisi.html" width="" height="500px" id="feisi" name="feisi" scrolling="auto" style="display: none;"></iframe>
+            <!--<div class="content_dt con"  style="display: none;">
+                <ul></ul>
+            </div>
+            <div class="content_fs con"  style="display: none;">
+                <ul>
+                </ul>
+            </div>-->
+        </article>
+		</div>
+	</body>
+	<script src="js/mui.min.js"></script>
+	<script src="js/tapinit.js" type="text/javascript" charset="utf-8"></script>
+	<script src="js/jquery.min.js" type="text/javascript" charset="utf-8"></script>
+	<script src="/js/mui.zoom.js"></script>
+	<script src="/js/mui.previewimage.js"></script>
+	<script type="text/javascript">
+	var width=$(window).width();
+	var height=$(window).height();
+	$("#header").attr({width:width*0.95});
+	var cenwidth=$("article").width();
+//	$("article").css({height:height-204})
+	var dianpu=$("#dianpu").css({width:width*0.95});
+	var dongtai=$(".dongtai").css({width:width*0.95,height:height-200});
+	var feisi=$("#feisi").attr({width:width*0.95,height:height-200});
+	/**/
+	var hots=$(".hots");
+		$(".content_title h1").each(function(index,obj){
+			$(this).on("tap",function(){
+				hots.finish().animate({left:(32*index+5)+"%"},80);
+				move(index);
+			})
+		})
+	/*获取url 处理传递的参数*/    
+    var loadata=window.location.href;
+    var loadataArr=loadata.split("?");
+    var loadArr=loadataArr[1].split("&");
+    var hrefData={};
+    for(var i=0 in loadArr){
+    	var arr=loadArr[i].split("=");
+    	hrefData[arr[0]]=arr[1];
+    }
+    var yonghuData={access_token:hrefData.access_token,shop_id:hrefData.shop_id};
+    /*ajax*/
+	function AJAX(aggregate){
+		$.ajax({
+			type: aggregate.type||"get",
+		    url: aggregate.url,
+		    dataType: "jsonp",
+		    data:aggregate.data,
+		    jsonp: "callback",
+		    success:aggregate.success
+		    })
+		}
+	/**/
+	var collect=$(".collect");
+	var shenf=true;
+	var dtflag=true;
+    if(yonghuData.shop_id==undefined||yonghuData.shop_id==""){
+	   	yhurl="http://"+httpdata+"/shop/myshopInfo";
+	   	shenf=false;
+	   	dtflag=false;
+	   	/*自己的店*/
+    }else{
+	   	yhurl="http://"+httpdata+"/shop/shopInfo";
+	   	/*别人的店*/
+	   	/*判断访问者是否开店*/
+	   	AJAX({
+	   		url:"http://"+httpdata+"/user/getUserAllInfo",
+	   		data:yonghuData,
+	   		success:function(result){
+	   			if(result.code=="10000"){
+	   				if(result.data.type=="0"){
+	   					shenf=false;
+	   					/*个人*/
+	   				}else if(result.data.type=="1"){
+	   					shenf=true;
+	   					/*店铺*/
+	   				}
+	   			};
+	   		}
+	   	})
+   }
+    AJAX({
+        url:yhurl,
+        data:yonghuData,
+        success:function(result){
+        	if(result.code!="10000"){
+        		mui.alert(result.msg);
+        		return;
+        	}
+        	if(yonghuData.shop_id==undefined||yonghuData.shop_id==""){
+        		yonghuData.shop_id=result.data.shop_id;
+	        	$("#dongtai").attr({src:"dongtai.html"});
+	        	$("#feisi").attr({src:"feisi.html"});
+        	}
+            /*logo*/
+            var logo=result.data.logo;
+            if(logo!=null&&logo!=""){
+                var logobox=$(".logo_box").children("img").attr({src:logo});
+                var img=new Image();
+                img.src=logo;
+                img.onload=function(){
+                	var logowidth=img.width;
+                	var logoheight=img.height;
+                    if(logowidth>=logoheight){
+	                    logobox.css({height:"100%",width:"auto"});
+	                 }else{
+	                    logobox.css({width:"100%",height:"auto"});
+	            }	
+                }
+            }
+            /*title*/
+            var title=result.data.name;
+            if(title!=null&&title!=""){
+                $(".logoTitle").children("h1").text(title);
+            }
+            /*点赞情况*/
+            if(result.data.zan){
+                /*已经点赞*/
+                collect.children("img").attr({src:"/images/kefx@3x.png"});
+            }else{
+                /*可以点过*/
+                collect.children("img").attr({src:"/images/yifx@3x.png"});
+            }
+            /*点赞次数*/
+            collect.children("span").text("("+result.data.zan_count+")");
+            /*粉丝次数*/
+            $(".fans").children("span").text("("+result.data.fans_count+")");
+          }
+        })
+    /*获取用户详情 判断店铺点赞情况*/
+    function shxq(backfunction){
+        AJAX({
+            url:"http://"+httpdata+"/shop/shopUpdate",
+            data:yonghuData,
+            success:function(result){
+                backfunction(result);
+            }
+        })
+    }
+    /*店铺点赞*/
+    collect.on("click",function(){
+        /*点赞*/
+        AJAX({type:"post",
+                url:"http://"+httpdata+"/shop/clickZan",
+                data:yonghuData,
+                success: function(data){
+                    /*成功后进行判断是否之前点击过*/
+                   
+                    if(data.code=="10000"){
+                        shxq(function(result){
+                            var num=parseInt(collect.children("span").text().slice(1,-1));
+                            if(result.data.zan){
+                                /*已经点赞*/
+                                collect.children("img").attr({src:"/images/kefx@3x.png"});
+                                collect.children("span").html("("+(num-1)+")");
+                            }else{
+                                /*可以点过*/
+                                collect.children("img").attr({src:"/images/yifx@3x.png"});
+                                collect.children("span").html("("+(num+1)+")");
+                            }
+                        })
+                    }else{
+                    	mui.alert(data.msg);
+                    	return;
+                    }
+                }
+            })
+    })
+    /*以上为页面信息*/
+    function move(index){
+    	dianpu.css({display:"none"});
+    	dongtai.css({display:"none"});
+    	feisi.css({display:"none"});
+    	switch(index)
+		{
+		case 0:
+		  dianpu.css({display:"block"});
+		  break;
+		case 1:
+		  dongtai.css({display:"block"});
+		  break;
+		case 2:
+		  feisi.css({display:"block"});
+		  break;
+		}
+//  	dianpu.finish().animate({left:(0-index)*100+"%"},60);
+//  	dongtai.finish().animate({left:(1-index)*100+"%"},60);
+//  	feisi.finish().animate({left:(2-index)*100+"%"},60);
+    }
+//  function iframmove(index,dis){
+//  	dianpu.css({left:(0-index)*width+dis});
+//  	dongtai.css({left:(1-index)*width+dis});
+//  	feisi.css({left:(2-index)*width+dis});
+//  }
+    
+    
+    
+    
+    /**/
+   var yhurl=""
+		   if(yonghuData.shop_id==undefined||yonghuData.shop_id==""){
+		   	yhurl="http://"+parent.httpdata+"/shop/myshopInfo"
+		   }else{
+		   	yhurl="http://"+parent.httpdata+"/shop/shopInfo";
+		   }
+		   window.parent.AJAX({
+		   	url:yhurl,
+	        data:yonghuData,
+	        success:function(result){
+	        	if(result.code=="10000"){
+	        		/*图文排版*/
+		            var data={content:result.data.desc,images:result.data.images,parents:$(".content_xq")};
+		            videotex(data);
+	        	}
+	        }
+		   })
+		   /*图文排版接口*/
+		    function videotex(data){
+		        /*
+		        * data.content 文字内容
+		        * data.images  图片数组
+		        * data.parents  排版的容器
+		        * */
+		        var content=data.content;
+		        var str="";
+		        str+="<p>"+content+"</p>";
+		        var images=eval(data.images);
+		        for (var i in eval(data.images)) {
+		        	str+="<img src='"+(eval(data.images)[i])+"'>";
+		        }
+		        data.parents.html(str);
+		    }
+
+
+
+	/*获取商户动态*/
+	var content_dt=$(".content_dt");
+	var pagedt=0;
+	var pullflag=false;
+	var conbox=$(".mui-table-view");
+	function shdt(){
+		pagedt++;
+		var data=yonghuData;
+		data.page=pagedt;
+		AJAX({
+			url:"http://"+parent.httpdata+"/feed/getFeedsList",
+			data:data,
+			success:function(result){
+				if(result.code=="10000"){
+					for(var i in result.data){
+						var str='';
+						str='<div class="conbox"><div class="header"><div class="titlebox"><div class="titbox"><p class="time">'+(result.data[i].time)+'</p></div></div></div><div class="con"><p>'+(result.data[i].content)+'</p><div class="mui-content"><div class="mui-content-padded">';
+						var imgarr=result.data[i].images;
+						var length=imgarr.length;
+						for(var j=0 in imgarr){
+							if(length<=1){
+								var imgwidth="90%";
+							}else if(length==4){
+								var imgwidth="33%";
+							}else{
+								var imgwidth="30%";
+							}
+							var src=imgarr[j];
+							str+='<img  class="coimg"  style="width: '+imgwidth+'" src="'+(src+".min"+src.substr(-4))+'" data-preview-src="'+src+'" data-preview-group="'+i+'" />';
+						}
+						str+='</div></div></div><div class="btnbox"><div class="fx"><img src="./images/fxnum@3x.png" alt=""><span>('+(result.data[i].share_count)+')</span></div>';
+						if(!parent.shenf&&!parent.dtflag){
+							str+='<img src="/images/del@3x.png" class="del" ></div></div>';
+						}
+						conbox.append(str);
+						/*处理logo*/
+						var logoimg=$(".logoimg")
+						var imgboxw=logoimg.width();
+						$(".header").css({height:imgboxw});
+						if(result.data.logo!=""&&result.data.logo!=null){
+							var logobox=logoimg.children("img");
+							var img=new Image();
+							img.src=result.data.logo;
+							img.onload=function(){
+								var logowidth=img.width;
+								var logoheight=img.height;
+								if(logowidth>=logoheight){
+									logobox.css({height:"100%",width:"auto"});
+								}else{
+									logobox.css({width:"100%",height:"auto"});
+								}
+							}
+						}
+					}
+				}else if(result.code=="10007"&&pagedt==1){
+					content_dt.children("ul").html("<p style='text-align: center;padding: 10px 0;'>暂无动态</p>");
+					pullflag=true;
+					return;
+				}else{
+					if(pagedt==1){
+						pagedt=0;
+					}
+					pullflag=true;
+					return;
+				}
+			}
+		})
+	}
+	/**/
+	/*下拉*/
+	mui.init({
+		pullRefresh : {
+			container:"#refreshContainer",//下拉刷新容器标识，querySelector能定位的css选择器均可，比如：id、.class等
+			down : {
+				height:50,//可选,默认50.触发下拉刷新拖动距离,
+				auto: true,//可选,默认false.自动下拉刷新一次
+				contentdown : "下拉可以刷新",//可选，在下拉可刷新状态时，下拉刷新控件上显示的标题内容
+				contentover : "释放立即刷新",//可选，在释放可刷新状态时，下拉刷新控件上显示的标题内容
+				contentrefresh : "正在刷新...",//可选，正在刷新状态时，下拉刷新控件上显示的标题内容
+				callback :pullfresh //必选，刷新函数，根据具体业务来编写，比如通过ajax从服务器获取新数据；
+			}
+		}
+	});
+	function pullfresh(){
+		shdt();
+		mui('#refreshContainer').pullRefresh().endPulldownToRefresh();
+	}
+	/*上拉加载*/
+	mui.init({
+		pullRefresh : {
+			container:refreshContainer,//待刷新区域标识，querySelector能定位的css选择器均可，比如：id、.class等
+			up : {
+				height:50,//可选.默认50.触发上拉加载拖动距离
+				auto:true,//可选,默认false.自动上拉加载一次
+				contentrefresh : "正在加载...",//可选，正在加载状态时，上拉加载控件上显示的标题内容
+				contentnomore:'没有更多数据了',//可选，请求完毕若没有更多数据时显示的提醒内容；
+				callback :pull//必选，刷新函数，根据具体业务来编写，比如通过ajax从服务器获取新数据；
+			}
+		}
+	});
+	function pull(){
+		shdt();
+		this.endPullupToRefresh(pullflag);
+	}
+	/**/
+	mui.previewImage();
+	</script>
+</html>

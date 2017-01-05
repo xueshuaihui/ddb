@@ -1,0 +1,327 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>个人信息</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <link rel="stylesheet" href="/css/reset.css">
+    <link rel="stylesheet" href="/css/index.css">
+    <link rel="stylesheet" type="text/css" href="css/mui.min.css"/>
+    <link rel="stylesheet" type="text/css" href="css/mui.picker.min.css"/>
+    <link rel="stylesheet" type="text/css" href="css/mui.poppicker.css"/>
+    <script src="js/http.js" type="text/javascript" charset="utf-8"></script>
+    <script src="js/mui.min.js" type="text/javascript" charset="utf-8"></script>
+    <script src="js/mui.picker.min.js" type="text/javascript" charset="utf-8"></script>
+    <script src="js/mui.poppicker.js" type="text/javascript" charset="utf-8"></script>
+    <style>
+        html,body{width: 100%;height: 100%;}
+        .ulbox{background: #ffffff;font-size: 20px;font-weight: bold;padding: 0 15px;border-bottom: 2px solid #f0eff5;}
+        ul>li{width: 100%;height: 45px;line-height: 45px;padding: 5px 0;}
+        .logo_radius{display: inline-block;width: 45px;height: 45px;border-radius: 50%;overflow: hidden;}
+        .lis_left,.lis_right{height: 100%;overflow: hidden;}
+        .lis_left{float: left;}
+        .lis_right{float: right;}
+        .lis_right img{height: 25px;margin-top: 12px;}
+        .lis_right .logo{height: 45px;margin-top: 0;}
+        .lis_right span{margin-left: 10px;float: left;}
+        .lis_right span:last-child{float: right;}
+        .name,.age,.sex,.tel,.zhiye{font-size: 15px;color: #9f9da5;}
+        .mask{width: 100%;height: 100%;background: rgba(0,0,0,.5);position: fixed;z-index: 5;top: 0;left: 0;display: none;}
+        .tapmask{width: 100%;height: 100%;position: absolute;top: 0;left: 0;z-index: 99;}
+        .tagbox{background: #FFFFFF;width: 80%;height: 80%;position: absolute;top: 10%;left: 10%;overflow: auto;z-index: 999;}
+        .mui-pciker-rule-bg{background: #ffffff;}
+        .mui-button-row{padding-bottom: 5px;}
+    </style>
+</head>
+<body>
+<ul class="ulbox">
+    <li style="height: 55px;" class="portrait">
+        <div class="lis_left"><span>头像</span></div>
+        <div class="lis_right">
+            <a href="javascript:;">
+                <span class="logo_radius"><img src="/images/ddblogo.png" alt="" class="logo"></span><span><img src="/images/dianji.png" alt=""></span>
+            </a>
+        </div>
+    </li>
+</ul>
+<ul class="ulbox">
+    <li class="name_box">
+        <div class="lis_left"><span>昵称</span></div>
+        <div class="lis_right">
+            <a href="javascript:;">
+                <span class="name"></span><span><img src="/images/dianji.png" alt=""></span>
+            </a>
+        </div>
+    </li>
+    <li class="sex_box">
+        <div class="lis_left"><span>性别</span></div>
+        <div class="lis_right">
+            <a href="javascript:;">
+                <span class="sex"></span><span><img src="/images/dianji.png" alt=""></span>
+            </a>
+        </div>
+    </li>
+    <li class="age_box">
+        <div class="lis_left"><span>年龄</span></div>
+        <div class="lis_right">
+            <a href="javascript:;">
+                <span class="age"></span><span><img src="/images/dianji.png" alt=""></span>
+            </a>
+        </div>
+    </li>
+    <li>
+        <div class="lis_left"><span>手机号</span></div>
+        <div class="lis_right">
+            <span class="tel"></span>
+        </div>
+    </li>
+    <li class="job_box">
+        <div class="lis_left"><span>职业</span></div>
+        <div class="lis_right">
+            <a href="javascript:;">
+                <span class="zhiye"></span><span><img src="/images/dianji.png" alt=""></span>
+            </a>
+        </div>
+    </li>
+</ul>
+<ul class="ulbox">
+    <li class="tag_box">
+        <div class="lis_left"><span>兴趣</span></div>
+        <div class="lis_right">
+            <a href="javascript:;">
+                <span> </span><span><img src="/images/dianji.png" alt=""></span>
+            </a>
+        </div>
+    </li>
+</ul>
+
+		<div class="mask">
+			<div class="tapmask"></div>
+			<div class="tagbox">
+				<!--下拉刷新容器-->
+			<div id="refreshContainer" class="mui-content mui-scroll-wrapper">
+			  <div class="mui-scroll">
+			    <!--数据列表-->
+			    <ul class="mui-table-view mui-table-view-chevron">
+			    </ul>
+			  </div>
+			</div>
+			<div class="mui-button-row" style="z-index: 50;position: absolute;bottom: 0;left: 0;right: 0;margin: auto;background: #ffffff;border-top: 1px solid #eee;">
+				  <button type="button" class="mui-btn mui-btn-primary" style="border: 1px solid #62d0eb;background: #62d0eb;">确认</button>
+			</div>
+			</div>
+		</div>
+</body>
+<script src="js/jquery.min.js" type="text/javascript" charset="utf-8"></script>
+<script src="js/tapinit.js" type="text/javascript" charset="utf-8"></script>
+<script>
+/*获取url 处理传递的参数*/   
+var loadata=window.location.href;
+    var loadataArr=loadata.split("?");
+    var loadArr=loadataArr[1].split("&");
+    var hrefData={};
+    for(var i=0 in loadArr){
+    	var arr=loadArr[i].split("=");
+    	hrefData[arr[0]]=arr[1];
+    }
+    var yonghuData={access_token:hrefData.access_token};
+    
+    function AJAX(aggregate){
+        $.ajax({
+            type: aggregate.type||"get",
+            url: aggregate.url,
+            dataType: "jsonp",
+            data:aggregate.data,
+            jsonp: "callback",
+            success:aggregate.success
+        })
+    }
+    AJAX({
+    	url:"http://"+httpdata+"/user/getUserAllInfo",
+    	data:yonghuData,
+    	success:function(result){
+    		if(result.code=="10000"){
+    			/*头像*/
+    			if(result.data.photo!=""&&result.data.photo!=null){
+    				$(".logo").attr({src:result.data.photo});
+    			}
+    			/*昵称*/
+    			if(result.data.nickname!=""&&result.data.nickname!=null){
+    				$(".name").text(result.data.nickname);
+    			}
+    			/*性别*/
+    			if(result.data.sex!=""&&result.data.sex!=null){
+    				var sex=result.data.sex;
+    				if(sex==0){
+    					$(".sex").text("其他");
+    				}else if(sex==1){
+    					$(".sex").text("男");
+    				}else if(sex==2){
+    					$(".sex").text("女");
+    				}
+    			}
+    			/*年龄*/
+    			if(result.data.age!=""&&result.data.age!=null){
+    				$(".age").text(result.data.age);
+    			}
+    			/*手机号*/
+    			if(result.data.mobile!=""&&result.data.mobile!=null){
+    				$(".tel").text(result.data.mobile);
+    			}
+    			/*职业*/
+    			if(result.data.job!=""&&result.data.job!=null){
+    				$(".zhiye").text(result.data.job);
+    			}
+    		}
+    	}
+    })
+    /*修改头像*/
+    $(".portrait").on("tap",function(){
+    	window.location.href="ddb://user/uploadPhoto";
+    })
+    /*修改昵称*/
+    $(".name_box").on("tap",function(){
+    	window.location.href="/name.html?access_token="+hrefData.access_token;
+    })
+    /*点击修改信息*/
+   function changetap(aggregate){
+   	/*点击修改 
+   	 * aggregate.sele   点击元素
+   	 * aggregate.setdata   显示选择元素
+   	 * aggregate.type  修改的数据
+   	 * aggregate.datasele  页面数据元素
+   	 * 
+   	 * */
+   $("."+aggregate.sele).on("tap",function(){
+   	var picker = new mui.PopPicker();
+    picker.setData(aggregate.setdata);
+    picker.show(function (data) {
+    	/*页面数据修改*/
+	   $("."+aggregate.datasele).text(data[0].text);
+	   /*后台数据修改*/
+	  yonghuData[aggregate.type]=data[0].value;
+	  AJAX({
+	  	url:"http://"+httpdata+"/user/updateUser",
+	  	type:'post',
+	  	data:yonghuData,
+	  	success:function(result){
+	  		if(data.code=="10000"){
+	  			mui.toast(result.msg);
+	  		}else{
+	  			mui.toast(result.msg);
+	  		}
+	  	}
+	  })
+    })
+   })
+   }
+/*修改性别*/
+changetap({sele:"sex_box",setdata:[{value:'0',text:'其他'},{value:'1',text:'男'},{value:'2',text:'女'}],type:"sex",datasele:"sex"})
+/*修改年龄*/
+changetap({sele:"age_box",setdata:[{value:'60后',text:'60后'},{value:'70后',text:'70后'},{value:'80后',text:'80后'},{value:'90后',text:'90后'},{value:'00后',text:'00后'},{value:'10后',text:'10后'}],type:"age",datasele:"age"})   
+/*修改职业*/
+$(".job_box").on("tap",function(){
+	mui.prompt("请输入您的职业","输入职业","个人信息——职业",["确定","取消"],function(data){                        
+		/*点击确认后提交*/
+		if(data.index==0){
+			yonghuData.job=data.value;
+			$(".zhiye").text(yonghuData.job);
+			AJAX({
+	  	url:"http://"+httpdata+"/user/updateUser",
+	  	type:'post',
+	  	data:yonghuData,
+	  	success:function(data){
+	  		if(data.code=="10000"){
+	  			mui.toast(data.msg);
+	  		}else{
+	  			mui.toast(data.msg);
+	  		}
+	  	}
+	  })
+		}
+	},"div")
+})
+/*选择兴趣*/
+/*显示兴趣列表*/
+var mask=$(".mask");
+$(".tag_box").on("tap",function(){
+    mask.css({display:"block"});
+//  gettag();
+})
+/*关闭兴趣列表*/
+$(".tapmask").on("tap",function(){
+	mask.css({display:"none"});
+})
+
+/*提交*/
+$(".mui-btn").on("tap",function(){	
+	if($("input:checked").length>5){
+		mui.alert("最多选择5种");
+		return;
+	}else{
+		/*获取选中的兴趣*/
+		var str=""
+		$("input:checked").each(function(index,obj){
+			str+=$(this).val()+",";
+//			data.tag[index]=$(this).val();
+		})
+		yonghuData.tag_id=str.split(0,-1)[0];
+		/*提交兴趣到后台*/
+		AJAX({
+			url:"http://"+httpdata+"/user/updateUser",
+			type:"post",
+			data:yonghuData,
+			success:function(result){
+				if(result.code=="10000"){
+					mui.alert("提交成功");
+				}else{
+					mui.alert("网络错误，稍后重试！");
+				}
+				mask.css({display:"none"});
+			}
+		})
+	}
+})
+/*获取兴趣列表*/
+var maskul=$(".mui-table-view ");
+function gettag(){
+	AJAX({
+	url:"http://"+httpdata+"/tags/getTagsList",
+	data:yonghuData,
+	success:function(result){
+		if(result.code=="10000"){
+			var str=""
+			for(var i in result.data){
+				str+='<div class="mui-input-row mui-checkbox "><label>'+result.data[i].name+'</label><input name="Checkbox" type="checkbox" value="'+result.data[i].tag_id+'" ></div>'
+			}
+			maskul.append(str);
+		}else{
+			pullflag=true;
+			return;
+		}
+	}
+})
+}
+
+/*上啦*/
+mui.init({
+pullRefresh : {
+    container:refreshContainer,//待刷新区域标识，querySelector能定位的css选择器均可，比如：id、.class等
+    up : {
+      height:50,//可选.默认50.触发上拉加载拖动距离
+      auto:true,//可选,默认false.自动上拉加载一次
+      contentrefresh : "正在加载...",//可选，正在加载状态时，上拉加载控件上显示的标题内容
+      contentnomore:'没有更多数据了',//可选，请求完毕若没有更多数据时显示的提醒内容；
+      callback :pullfresh //必选，刷新函数，根据具体业务来编写，比如通过ajax从服务器获取新数据；
+    }
+}
+});
+function pullfresh(){
+	gettag();
+	this.endPullupToRefresh(true); 
+}
+
+
+
+</script>
+</html>

@@ -1,0 +1,145 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>粉丝详情</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <link rel="stylesheet" href="/css/reset.css">
+    <link rel="stylesheet" href="/css/index.css">
+    <link rel="stylesheet" href="/css/mui.min.css">
+    <script src="js/http.js" type="text/javascript" charset="utf-8"></script>
+    <script src="/js/mui.min.js"></script>
+    <style>
+        .portrait>div{float: none;margin: 40px auto;}
+        .body{padding: 0;}
+        .name{font-size: 16px;text-align: center;font-weight: bolder;color: #000000;}
+        .information{padding: 0 10%;font-size: 14px;margin-top: 20px;}
+        .dplogo{padding: 0 10%;font-size: 18px;}
+        .information>li{border-bottom: 2px solid #f0eff5;}
+        .nohot{color: #999;}
+        .infor_title{height: 45px;line-height: 45px;}
+        .dplogo_box{border-radius: 50%;overflow: hidden;display: inline-block;}
+        .dplogo_box>img{width: 100%;height: 100%;}
+
+        .information>li>span{display: inline-block;}
+        @media screen and (max-width:375px){
+            .dplogo_box{width: 55px;height: 55px;}
+        }
+        @media screen and (min-width:375px){
+            .dplogo_box{width: 65px;height: 65px;}
+        }
+    </style>
+</head>
+<body>
+<div class="portrait headbox">
+    <div class="logo_box">
+        <img src="/images/1.jpg" alt="">
+    </div>
+</div>
+<div class="body">
+    <p class="name">暂无</p>
+    <ul class="information">
+        <li>
+            <span class="infor_title">性别：</span><span class="nohot sex">暂无</span>
+        </li>
+        <li>
+            <span  class="infor_title">年龄：</span><span class="nohot age">暂无</span>
+        </li>
+        <li>
+            <span class="infor_title">职业：</span><span  class="nohot job">暂无</span>
+        </li>
+        <li>
+            <span class="infor_title">兴趣：</span><span  class="nohot tag">暂无</span>
+        </li>
+        <li>
+            <span class="infor_title">个人签名：</span><span class="nohot desc">暂无</span>
+        </li>
+    </ul>
+    <div class="dplogo">
+        <p class="infor_title">所在店铺：</p>
+    </div>
+</div>
+</body>
+<script src="/js/jquery.min.js"></script>
+<script>
+    function AJAX(aggregate){
+        $.ajax({
+            type: aggregate.type||"get",
+            url: aggregate.url,
+            dataType: "jsonp",
+            data:aggregate.data,
+            jsonp: "callback",
+            success:aggregate.success
+        })
+    }
+/*获取url 处理传递的参数*/    
+    var loadata=window.location.href;
+    var loadataArr=loadata.split("?");
+    var loadArr=loadataArr[1].split("&");
+    var hrefData={};
+    for(var i=0 in loadArr){
+    	var arr=loadArr[i].split("=");
+    	hrefData[arr[0]]=arr[1];
+    }
+    var yonghuData={access_token:hrefData.access_token,user_id:hrefData.user_id};
+    AJAX({
+        url:"http://"+httpdata+"/user/getUserById",
+        data:yonghuData,
+        success:function(result){
+        	if(result.code=="10000"){
+        		/*昵称*/
+            $(".name").text(result.data.nickname);
+            /*头像*/
+            var photo=result.data.photo;
+            if(photo!=null&&photo!=""){
+                $(".logo_box").children("img").attr({src:photo});
+            }
+            /*性别*/
+            var sex=result.data.sex;
+            var docsex=$(".sex");
+            if(sex=="0"){
+                docsex.removeClass("nohot").text("其他");
+            }else if(sex=="1"){
+                docsex.removeClass("nohot").text("男");
+            }else if(sex=="2"){
+                docsex.removeClass("nohot").text("女");
+            }
+            /*年龄*/
+            var age=result.data.age;
+            console.log(age!="")
+            if(age!=null&&age!=""){
+                $(".age").removeClass("nohot").text(age);
+            }
+            /*职业*/
+            var job=result.data.job;
+            if(job!=null&&job!=""){
+                $(".job").removeClass("nohot").text(job);
+            }
+            /*兴趣*/
+            var tag=result.data.tag;
+            var str="";
+            if(tag!=null&&tag!=""){
+                for(var i=0 in result.data.tag){
+                    str+=result.data.tag[i].name+"、";
+                }
+                $(".tag").removeClass("nohot").text(str);
+            }
+            /*个人签名*/
+            var desc=result.data.desc;
+            if(desc!=null&&desc!=""){
+                $(".desc").removeClass("nohot").text(desc);
+            }
+            /*所在店铺*/
+            var shop=result.data.shop;
+            var str="";
+            for(var i=0 in shop){
+                str+='<a href="javascript:;"><div class="dplogo_box"><img src="'+(shop[i].images)+'" alt=""></div></a>';
+            }
+            $(".dplogo").append(str);
+        	}else{
+        		mui.alert(result.msg)
+        	}
+        }
+    })
+</script>
+</html>
